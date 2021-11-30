@@ -1,0 +1,7 @@
+SECRET_KEY=-avmhqh9o^t2ms^ql$6g@+ex54jr1%k0_*gth=d0(-!!y)pe6i
+DB_NAME=library_serializers
+DB_USER=user
+DB_PASSWORD=password
+DOMAIN=http://localhost:8000
+EMAIL_HOST_USER=example@gmail.com
+EMAIL_HOST_PASSWORD=password_gmail
