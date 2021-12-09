@@ -14,7 +14,8 @@ class RegisterSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('email', 'username', 'last_name', 'group', 'password', 'password_confirmation')
+        fields = ('email', 'first_name', 'last_name', 'group',
+                  'password', 'password_confirmation', 'phone')
 
     def validate_email(self, email):
         if User.objects.filter(email=email).exists():
@@ -30,12 +31,15 @@ class RegisterSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         email = validated_data.get('email')
-        username = validated_data.get('username')
+        first_name = validated_data.get('first_name')
         last_name = validated_data.get('last_name')
         group = validated_data.get('group')
         password = validated_data.get('password')
-        user = User.objects.create_user(email=email, username=username, last_name=last_name, group=group, password=password)
-        send_activation_email(email=user.email, activation_code=user.activation_code,  is_password=False)
+        phone = validated_data.get('phone')
+        user = User.objects.create_user(
+            email=email, first_name=first_name, last_name=last_name, group=group, password=password, phone=phone, username=email)
+        send_activation_email(
+            email=user.email, activation_code=user.activation_code,  is_password=False)
         return user
 
 
@@ -61,6 +65,7 @@ class LoginSerializer(serializers.Serializer):
         attrs['user'] = user
         return attrs
 
+
 class CreateNewPasswordSerializer(serializers.Serializer):
     email = serializers.EmailField()
     activation_code = serializers.CharField(max_length=60)
@@ -70,7 +75,8 @@ class CreateNewPasswordSerializer(serializers.Serializer):
     def validate_email(self, email):
         User = get_user_model()
         if not User.objects.filter(email=email).exists():
-            raise serializers.ValidationError('User with given email does not exist')
+            raise serializers.ValidationError(
+                'User with given email does not exist')
         return email
 
     def validate_activation_code(self, activation_code):
@@ -94,7 +100,8 @@ class CreateNewPasswordSerializer(serializers.Serializer):
 
         try:
             User = get_user_model()
-            user = User.objects.get(email=email, activation_code=activation_code)
+            user = User.objects.get(
+                email=email, activation_code=activation_code)
         except:
             raise serializers.ValidationError('User not found')
 
@@ -103,4 +110,3 @@ class CreateNewPasswordSerializer(serializers.Serializer):
         user.set_password(password)
         user.save()
         return user
-    

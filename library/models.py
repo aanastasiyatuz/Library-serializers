@@ -9,7 +9,8 @@ class Book(models.Model):
     book_id = models.CharField(max_length=100)
     is_available = models.BooleanField(default=True)
     image = models.ImageField(upload_to='books')
-
+    author = models.ForeignKey("Author", on_delete=models.SET_NULL, null=True)
+    quantity = models.PositiveIntegerField()
     def get_average_rating(self):
         ratings = Rating.objects.filter(book=self)
         if ratings:
@@ -33,6 +34,7 @@ class Order(models.Model):
                 self.is_returned = True
             if not self.book.is_available:
                 self.book.is_available = True
+                self.book.quantity += 1
     
         return f'{self.student.last_name} {self.student.username[0].upper()}. - {self.book}'
 
@@ -41,6 +43,13 @@ class Comment(models.Model):
     book = models.ForeignKey(Book, on_delete=models.CASCADE, related_name='comments')
     body = models.TextField()
     date = models.DateTimeField(auto_now_add=True)
+
+class Author(models.Model):
+    name = models.CharField(max_length=150)
+    books = models.ManyToManyField(Book, related_name="authors")
+
+    def __str__(self):
+        return str(self.name)
 
 class Rating(models.Model):
     student = models.ForeignKey(User, on_delete=models.CASCADE, related_name='ratings')

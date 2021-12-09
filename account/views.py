@@ -21,6 +21,7 @@ class RegistrationView(APIView):
             serializer.save()
             return Response('Perfectly singed up', status=status.HTTP_201_CREATED)
 
+
 class ActivateView(APIView):
     def get(self, request, activation_code):
         user = get_object_or_404(User, activation_code=activation_code)
@@ -55,7 +56,8 @@ class ForgotPassword(APIView):
         user.is_active = False
         user.create_activation_code()
         user.save()
-        send_activation_email(email=email, activation_code=user.activation_code, is_password=True)
+        send_activation_email(
+            email=email, activation_code=user.activation_code, is_password=True)
         return Response('Activation code has been sent to your email', status=status.HTTP_200_OK)
 
 
